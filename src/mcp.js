@@ -63,7 +63,7 @@ export const TOOLS = [
     name: "update_doc",
     title: "Update Google Doc",
     description:
-      "Apply a Google Docs documents.batchUpdate request without stripping preview fields. Supports insertComment, comment replies, suggestion management, and writeControl.writeMode SUGGEST.",
+      "Apply a Google Docs documents.batchUpdate request without stripping preview fields. Supports insertComment, addCommentReply, suggestion management, and writeControl.writeMode SUGGEST.",
     annotations: {
       readOnlyHint: false,
       destructiveHint: true,
@@ -176,7 +176,7 @@ export async function handleRpc(
         capabilities: { tools: { listChanged: false } },
         serverInfo: {
           name: "google-docs-preview-mcp",
-          version: "0.2.0"
+          version: "0.2.1"
         },
         instructions:
           "Use read_doc with suggestions inline before index-based writes. Use update_doc with writeControl.writeMode SUGGEST for suggested edits. Never substitute a direct edit when the user requests a suggestion."

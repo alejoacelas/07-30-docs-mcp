@@ -1,6 +1,6 @@
 {
   "name": "google-docs-preview-mcp",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "type": "module",
   "bin": {
@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "node --test",
+    "check:docs": "node scripts/check-docs.mjs",
     "dev": "vercel dev",
     "auth": "node bin/google-auth.js",
     "start:local": "node bin/docs-mcp-local.js"

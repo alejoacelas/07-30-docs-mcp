@@ -90,6 +90,7 @@ test("read_doc forwards preview query fields and bearer token", async () => {
   assert.match(request.url, /commentsViewMode=COMMENTS_VIEW_MODE_INCLUDED/);
   assert.match(request.url, /includeTabsContent=true/);
   assert.equal(request.options.headers.authorization, "Bearer test-token");
+  assert.equal(request.options.redirect, "error");
 });
 
 test("update_doc preserves writeControl and preview requests", async () => {

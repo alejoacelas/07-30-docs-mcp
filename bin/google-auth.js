@@ -64,6 +64,7 @@ async function exchangeCode({
 
   const response = await fetchImpl("https://oauth2.googleapis.com/token", {
     method: "POST",
+    redirect: "error",
     headers: {
       accept: "application/json",
       "content-type": "application/x-www-form-urlencoded"

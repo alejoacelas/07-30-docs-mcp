@@ -55,4 +55,5 @@ test("local auth refreshes and preserves the refresh token", async () => {
   assert.equal(stored.access_token, "refreshed");
   assert.equal(request.url, "https://oauth2.googleapis.com/token");
   assert.match(String(request.options.body), /grant_type=refresh_token/);
+  assert.equal(request.options.redirect, "error");
 });

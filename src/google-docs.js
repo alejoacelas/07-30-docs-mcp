@@ -17,7 +17,10 @@ function bearerHeader(authorization) {
 }
 
 async function googleJson(url, options, fetchImpl) {
-  const response = await fetchImpl(url, options);
+  const response = await fetchImpl(url, {
+    ...options,
+    redirect: "error"
+  });
   const text = await response.text();
   let body;
   try {

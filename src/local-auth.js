@@ -41,6 +41,7 @@ async function refreshToken(token, path, fetchImpl) {
 
   const response = await fetchImpl(TOKEN_ENDPOINT, {
     method: "POST",
+    redirect: "error",
     headers: {
       accept: "application/json",
       "content-type": "application/x-www-form-urlencoded"
