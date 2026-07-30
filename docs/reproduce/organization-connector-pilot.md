@@ -69,6 +69,23 @@ The adapter now supplies that flag automatically. The MCP tool description now g
 the exact `insertComment.content` and `addCommentReply.post.content` shapes that the
 model otherwise learned through retries.
 
+After deploying commit `ed2b6df`, Claude repeated the read with
+`includeTabsContent=false` explicitly set. The first call succeeded, recovered the
+same comment, reply and open suggestion, and returned the unchanged revision. This
+proves the normalization fix is active on the organization connector.
+
+The deployment leaves the two existing endpoints in distinct modes:
+
+| Endpoint | Mode | Purpose |
+| --- | --- | --- |
+| `docs-mcp-80k-temporary-test.vercel.app` | `broker` | Temporary organization connector |
+| `docs-mcp-fixed.vercel.app` | `legacy` | Older reproduction connector; not for sensitive documents |
+
+The older endpoint was restored to legacy mode after it had temporarily received the
+broker deployment. This preserves its immutable Claude connector record without
+mixing its Google client credentials with the organization connector’s MCP client
+credentials.
+
 ## Checks
 
 ```sh
