@@ -1,9 +1,10 @@
-import { readDocument, updateDocument, UpstreamError } from "./docs.js";
+import {
+  readDocument,
+  updateDocument,
+  UpstreamError
+} from "./google-docs.js";
 
 export const SCOPES = [
-  "https://www.googleapis.com/auth/drive.readonly",
-  "https://www.googleapis.com/auth/documents.readonly",
-  "https://www.googleapis.com/auth/drive",
   "https://www.googleapis.com/auth/documents"
 ];
 
@@ -161,7 +162,10 @@ export async function handleRpc(
       body: rpcResult(message.id, {
         protocolVersion,
         capabilities: { tools: { listChanged: false } },
-        serverInfo: { name: "docs-mcp-fixed", version: "0.1.0" },
+        serverInfo: {
+          name: "google-docs-preview-mcp",
+          version: "0.2.0"
+        },
         instructions:
           "Use read_doc with suggestions inline before index-based writes. Use update_doc with writeControl.writeMode SUGGEST for suggested edits. Never substitute a direct edit when the user requests a suggestion."
       })

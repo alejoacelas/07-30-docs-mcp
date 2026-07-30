@@ -5,7 +5,7 @@ import {
   handleRpc,
   protectedResourceMetadata,
   TOOLS
-} from "../lib/mcp.js";
+} from "../src/mcp.js";
 
 test("tool schema exposes preview read and write fields", () => {
   const read = TOOLS.find((tool) => tool.name === "read_doc");
@@ -27,7 +27,10 @@ test("initialize and tools/list are stateless", async () => {
     params: { protocolVersion: "2025-06-18" }
   });
   assert.equal(initialized.status, 200);
-  assert.equal(initialized.body.result.serverInfo.name, "docs-mcp-fixed");
+  assert.equal(
+    initialized.body.result.serverInfo.name,
+    "google-docs-preview-mcp"
+  );
 
   const listed = await handleRpc({
     jsonrpc: "2.0",
@@ -131,16 +134,11 @@ test("update_doc preserves writeControl and preview requests", async () => {
   );
 });
 
-test("metadata mirrors Google's OAuth resource-server contract", () => {
+test("metadata requests only the Docs write scope", () => {
   assert.deepEqual(protectedResourceMetadata("https://example.com"), {
     authorization_servers: ["https://accounts.google.com/"],
     bearer_methods_supported: ["header"],
     resource: "https://example.com/mcp",
-    scopes_supported: [
-      "https://www.googleapis.com/auth/drive.readonly",
-      "https://www.googleapis.com/auth/documents.readonly",
-      "https://www.googleapis.com/auth/drive",
-      "https://www.googleapis.com/auth/documents"
-    ]
+    scopes_supported: ["https://www.googleapis.com/auth/documents"]
   });
 });

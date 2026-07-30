@@ -1,4 +1,4 @@
-import { handleRpc } from "../lib/mcp.js";
+import { handleRpc } from "../src/mcp.js";
 
 function originFor(request) {
   const proto = request.headers["x-forwarded-proto"] || "https";

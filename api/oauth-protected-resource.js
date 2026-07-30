@@ -1,4 +1,4 @@
-import { protectedResourceMetadata } from "../lib/mcp.js";
+import { protectedResourceMetadata } from "../src/mcp.js";
 
 function originFor(request) {
   const proto = request.headers["x-forwarded-proto"] || "https";

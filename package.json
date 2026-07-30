@@ -1,11 +1,16 @@
 {
-  "name": "docs-mcp-fixed",
-  "version": "0.1.0",
+  "name": "google-docs-preview-mcp",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
+  "bin": {
+    "google-docs-preview-mcp": "bin/docs-mcp-local.js"
+  },
   "scripts": {
     "test": "node --test",
-    "dev": "vercel dev"
+    "dev": "vercel dev",
+    "auth": "node bin/google-auth.js",
+    "start:local": "node bin/docs-mcp-local.js"
   },
   "engines": {
     "node": ">=20"
