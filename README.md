@@ -60,7 +60,11 @@ bin/        Local authorization and stdio entrypoints
 src/        Shared MCP and Google Docs logic
 test/       Protocol, passthrough, and token-refresh tests
 docs/       Setup, security analysis, evidence, and guide images
+archive/    Superseded documents retained for context
 ```
+
+`docs/reproduce/` is the concise maintained path from decisive prompts through
+method, scripts, inputs, and checks to the current output.
 
 ## Verification
 

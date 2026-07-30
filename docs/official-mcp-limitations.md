@@ -38,6 +38,6 @@ The Developer Preview enrollment, OAuth grant, Docs API, and document permission
 
 Evidence:
 
-- [Preview feature test](history/preview-feature-test.md)
-- [Self-hosted test](history/custom-mcp-test.md)
-- [Bug-report draft](history/bug-report-draft.md)
+- [Preview feature test](reproduce/preview-feature-test.md)
+- [Self-hosted test](reproduce/custom-mcp-test.md)
+- [Archived bug-report draft](../archive/2026-07-29-bug-report-draft.md)

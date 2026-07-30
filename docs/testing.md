@@ -42,4 +42,4 @@ Claude Code used the local MCP to create an anchored comment, add a reply with `
 
 ![Claude Desktop local result; callouts mark the local connector and recovered state](images/guide/31-local-connector-test-passed.png)
 
-See the [local live-test record](history/local-live-test.md) for the method, result, and the `replyComment` → `addCommentReply` schema correction.
+See the [local live-test record](reproduce/local-live-test.md) for the method, result, and the `replyComment` → `addCommentReply` schema correction.

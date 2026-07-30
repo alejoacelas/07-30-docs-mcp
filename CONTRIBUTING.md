@@ -19,7 +19,8 @@ Add a regression test for every schema or authorization change.
 ## Documentation
 
 - Keep the local, shared-remote, and self-hosted-remote trust boundaries distinct.
-- Put failed experiments and detailed evidence under `docs/history/`.
+- Put current methods and detailed evidence under `docs/reproduce/`; move superseded
+  experiments to dated items under `archive/`.
 - Reference only edited images under `docs/images/guide/`.
 - Do not commit original screenshots, OAuth JSON, token files, or environment files.
 
