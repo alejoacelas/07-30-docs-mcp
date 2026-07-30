@@ -2,6 +2,10 @@
 .env.*
 !.env.example
 .git
+.agents
+.claude
+.cursor
+.projects
 test
 bin
 docs

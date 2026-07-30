@@ -19,7 +19,7 @@ The underlying Google Docs REST API accepts all three operations. See [what fail
 | --- | --- | --- | --- |
 | Local stdio | Claude Desktop and Claude Code | Your computer, Google, and Claude | Recommended for sensitive documents; tested |
 | Shared remote | Claude.ai and other cloud clients | Adds this project’s Vercel account | Experimental; not recommended for sensitive documents |
-| Self-hosted remote | Claude.ai and other cloud clients | Adds your deployment account and hosting provider | Experimental until it uses proper MCP OAuth |
+| Organization-owned remote | Claude.ai and other cloud clients | Adds organization-approved hosting and storage providers | Broker implemented; requires organization-owned deployment and security review |
 
 The local server is the current recommendation. Claude.ai cannot connect to localhost or stdio; use Claude Desktop or Claude Code for the local option. Tool results still go to Claude for processing.
 
@@ -50,7 +50,7 @@ See the [complete setup guide](docs/setup.md) before authorizing an account.
 https://docs-mcp-fixed.vercel.app/mcp
 ```
 
-This endpoint is useful for reproducing the adapter fix in Claude.ai. It currently forwards a Google access token unchanged, which the MCP security specification prohibits as token passthrough. Do not treat it as a production shared service. Read [design and security](docs/design-and-security.md) first.
+This endpoint is useful for reproducing the adapter fix in Claude.ai. It currently forwards a Google access token unchanged, which the MCP security specification prohibits as token passthrough. Do not treat it as a production shared service. Read [the organization-owned remote design](docs/organization-owned-remote.md) before considering a team deployment.
 
 ## Repository map
 
@@ -75,7 +75,7 @@ The test suite covers the preview schema, complete request forwarding, Docs-only
 - Local tokens are plaintext JSON stored outside the repository with mode `600`.
 - Docs tool calls construct requests only for the fixed `docs.googleapis.com` origin; local OAuth separately contacts Google’s documented authorization and token endpoints.
 - Tool annotations mark writes as destructive, but approval behavior is enforced by the MCP client. Configure per-call approval for writes.
-- The remote transport is experimental until token passthrough is replaced with a separate MCP authorization layer.
+- The source tree includes a separate MCP authorization broker. The live endpoint remains in legacy mode until its Google client, deployment, Redis, keys, and administration are transferred to organization-owned accounts and reviewed.
 
-Read [SECURITY.md](SECURITY.md) and the full [threat model](docs/design-and-security.md).
+Read [SECURITY.md](SECURITY.md), the [organization-owned deployment decision](docs/organization-owned-remote.md), and the full [threat model](docs/design-and-security.md).
 <!--/ai-->

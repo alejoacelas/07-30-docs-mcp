@@ -68,7 +68,7 @@ flowchart LR
     M --> K["Encrypted per-user token store"]
 ```
 
-A production resource server must validate MCP-audience tokens separately from the authorization server that obtains Google consent. It must isolate users, encrypt Google refresh tokens, and never treat a Google token as authorization to the MCP itself.
+The broker in this repository implements this separation with short-lived opaque MCP access tokens, rotating refresh tokens, exact resource and client binding, one-time authorization codes, and encrypted Google grants in Redis. Its ownership and rollout requirements are in [Organization-owned remote MCP](organization-owned-remote.md). The public test deployment has not been switched to this mode.
 
 ## Credential and data classification
 
@@ -108,16 +108,17 @@ Claude.ai custom connectors originate from Anthropic’s cloud and therefore req
 
 ## Production remote checklist
 
-- Separate MCP access tokens from Google access tokens.
-- Validate token issuer, audience, resource, expiry, and scopes.
-- Use Authorization Code with PKCE, exact redirect URIs, and `state`.
-- Encrypt Google refresh tokens with a managed key and isolate them per user.
-- Keep the OAuth client secret in a secret manager.
+- [x] Separate MCP access tokens from Google access tokens.
+- [x] Validate token audience, resource, expiry, client, and scopes.
+- [x] Use Authorization Code with PKCE, exact redirect URIs, and one-time state.
+- [x] Encrypt Google refresh tokens and isolate grants per authorization.
+- [x] Keep secrets outside the repository.
 - Log metadata only—never tokens or document bodies.
 - Add request size, rate, and timeout limits.
 - Use a canonical public origin; never derive authorization metadata from an unvalidated Host header.
 - Fix Docs traffic to the Docs API and reject upstream redirects.
 - Publish an incident and revocation procedure.
+- Transfer the deployment, OAuth clients, data store, encryption key, and administration to organization-owned accounts.
 - Complete a security review before offering the endpoint as the default.
 
 Primary references:

@@ -13,6 +13,30 @@
       "destination": "/api/oauth-protected-resource"
     },
     {
+      "source": "/.well-known/oauth-authorization-server",
+      "destination": "/api/oauth-authorization-server"
+    },
+    {
+      "source": "/.well-known/openid-configuration",
+      "destination": "/api/oauth-authorization-server"
+    },
+    {
+      "source": "/oauth/authorize",
+      "destination": "/api/oauth-authorize"
+    },
+    {
+      "source": "/oauth/google/callback",
+      "destination": "/api/oauth-google-callback"
+    },
+    {
+      "source": "/oauth/token",
+      "destination": "/api/oauth-token"
+    },
+    {
+      "source": "/oauth/revoke",
+      "destination": "/api/oauth-revoke"
+    },
+    {
       "source": "/health",
       "destination": "/api/health"
     }

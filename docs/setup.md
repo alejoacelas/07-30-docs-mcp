@@ -8,7 +8,7 @@ This guide uses a custom MCP because [Google’s hosted Docs MCP omits the field
 | --- | --- | --- |
 | Local stdio | You can use Claude Desktop or Claude Code | Recommended for sensitive documents |
 | Shared remote | You require Claude.ai and are testing non-sensitive documents | Experimental |
-| Self-hosted remote | You require Claude.ai and control the host | Still experimental without a proper OAuth broker |
+| Organization-owned remote | Your organization requires Claude.ai and can own the service | Separate MCP and Google tokens; requires organizational review |
 
 Claude.ai cannot connect directly to a local MCP. Its custom-connector requests originate from Anthropic’s cloud and require a public URL.
 
@@ -186,9 +186,34 @@ Connect the intended Workspace account and approve the Docs scope.
 
 The MCP server does not receive the OAuth client secret; it is supplied to Claude/Anthropic’s connector configuration for the OAuth flow. Do not assume anything further about the client’s storage implementation. The server does process the resulting Google access token and document payloads.
 
-## Path C: self-host the experimental remote
+## Path C: organization-owned remote
 
-Deploying the same proxy replaces this project’s Vercel account with your deployment account. Vercel still processes tokens and document payloads:
+Use this path only after reading the [organization-owned remote design and approval request](organization-owned-remote.md). The organization must own the Google Cloud project, Google OAuth client, MCP client credentials, deployment, domain, Redis store, encryption key, administration, and revocation process.
+
+Create a Google Web OAuth client with this exact authorized redirect URI:
+
+```text
+https://YOUR-PRODUCTION-ORIGIN/oauth/google/callback
+```
+
+Configure the deployment:
+
+```text
+DOCS_MCP_AUTH_MODE=broker
+DOCS_MCP_PUBLIC_ORIGIN=https://YOUR-PRODUCTION-ORIGIN
+DOCS_MCP_TOKEN_KEY=<32 random bytes, base64 encoded>
+GOOGLE_OAUTH_CLIENT_ID=<organization-owned Google Web client ID>
+GOOGLE_OAUTH_CLIENT_SECRET=<organization-owned Google Web client secret>
+MCP_OAUTH_CLIENT_ID=<client ID entered in Claude>
+MCP_OAUTH_CLIENT_SECRET=<client secret entered in Claude>
+MCP_REDIRECT_URI=https://claude.ai/api/mcp/auth_callback
+UPSTASH_REST_URL=<organization-owned Redis REST URL>
+UPSTASH_REST_TOKEN=<organization-owned Redis REST token>
+```
+
+Generate independent random values for the token key and MCP client secret. Store them in the organization’s secret manager; do not put them in a shell-history command, repository, screenshot, or guide.
+
+Deploy:
 
 ```sh
 npm test
@@ -202,9 +227,11 @@ curl https://YOUR-PRODUCTION-ORIGIN/health
 curl -i https://YOUR-PRODUCTION-ORIGIN/mcp
 ```
 
-The health route should return JSON with `"ok": true`; the unauthenticated MCP route should return an authorization challenge, not a successful tool response. Vercel supplies a canonical production origin automatically. On another host, set `DOCS_MCP_PUBLIC_ORIGIN` to the exact public HTTPS origin.
+The health route must return `"authMode": "broker"`. The unauthenticated MCP route must return an authorization challenge pointing to the deployment’s protected-resource metadata, not Google’s authorization server directly.
 
-Self-hosting does not fix the protocol problem: the proxy still forwards Google tokens unchanged. A production remote service needs [separate MCP and Google authorization](design-and-security.md#production-remote).
+In Claude’s custom connector form, use the production `/mcp` URL and the organization-owned `MCP_OAUTH_CLIENT_ID` and `MCP_OAUTH_CLIENT_SECRET`. Claude authenticates to this MCP; the MCP separately obtains and encrypts each user’s Google grant. A Google token sent directly to `/mcp` must be rejected.
+
+This fixes token passthrough. It does not remove remote-host trust: the deployment processes document bodies, and whoever controls the deployment and encryption key can access staff grants and documents. Complete the rollout gates in the organization-owned design before confidential use.
 
 ## Verify comments and suggestions
 

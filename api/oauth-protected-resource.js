@@ -1,13 +1,7 @@
 import { protectedResourceMetadata } from "../src/mcp.js";
-
-function originFor(request) {
-  const proto = request.headers["x-forwarded-proto"] || "https";
-  const host =
-    request.headers["x-forwarded-host"] ||
-    request.headers.host ||
-    "localhost:3000";
-  return `${proto}://${host}`;
-}
+import { originFor } from "../src/http-origin.js";
+import { createOAuthBroker } from "../src/oauth-broker.js";
+import { MemoryStore } from "../src/secure-store.js";
 
 export default function handler(request, response) {
   if (request.method !== "GET") {
@@ -15,8 +9,13 @@ export default function handler(request, response) {
     response.status(405).json({ error: "Method not allowed" });
     return;
   }
+  const metadata =
+    process.env.DOCS_MCP_AUTH_MODE === "broker"
+      ? createOAuthBroker({ store: new MemoryStore() })
+          .protectedResourceMetadata()
+      : protectedResourceMetadata(originFor(request));
   response
     .status(200)
     .setHeader("Cache-Control", "public, max-age=300")
-    .json(protectedResourceMetadata(originFor(request)));
+    .json(metadata);
 }

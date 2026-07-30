@@ -176,7 +176,7 @@ export async function handleRpc(
         capabilities: { tools: { listChanged: false } },
         serverInfo: {
           name: "google-docs-preview-mcp",
-          version: "0.2.1"
+          version: "0.3.0"
         },
         instructions:
           "Use read_doc with suggestions inline before index-based writes. Use update_doc with writeControl.writeMode SUGGEST for suggested edits. Never substitute a direct edit when the user requests a suggestion."

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "providers": {
+    "upstash": {
+      "name": "Upstash"
+    }
+  },
+  "resources": {
+    "oauth-store": {
+      "name": "oauth-store",
+      "providerName": "Upstash",
+      "serviceId": "redis"
+    }
+  }
+}

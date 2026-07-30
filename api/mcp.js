@@ -1,33 +1,9 @@
 import { handleRpc } from "../src/mcp.js";
+import { originFor } from "../src/http-origin.js";
+import { createOAuthBroker } from "../src/oauth-broker.js";
+import { UpstashStore } from "../src/secure-store.js";
 
-function firstHeader(value) {
-  return String(value || "").split(",")[0].trim();
-}
-
-export function originFor(request, env = process.env) {
-  const configured =
-    env.DOCS_MCP_PUBLIC_ORIGIN ||
-    (env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "");
-  if (configured) {
-    const url = new URL(configured);
-    if (!["https:", "http:"].includes(url.protocol)) {
-      throw new Error("DOCS_MCP_PUBLIC_ORIGIN must be an HTTP(S) origin");
-    }
-    return url.origin;
-  }
-
-  const proto = firstHeader(request.headers["x-forwarded-proto"]) || "https";
-  const host =
-    firstHeader(request.headers["x-forwarded-host"]) ||
-    firstHeader(request.headers.host) ||
-    "localhost:3000";
-  if (!/^(https|http)$/.test(proto) || !/^[a-z0-9.-]+(?::\d+)?$/i.test(host)) {
-    throw new Error("Invalid proxy origin headers");
-  }
-  return `${proto}://${host}`;
-}
+export { originFor };
 
 function cors(response) {
   response.setHeader("Access-Control-Allow-Origin", "https://claude.ai");
@@ -69,9 +45,22 @@ export default async function handler(request, response) {
     }
   }
 
-  const result = await handleRpc(message, {
-    authorization: request.headers.authorization
-  });
+  let authorization = request.headers.authorization;
+  if (
+    process.env.DOCS_MCP_AUTH_MODE === "broker" &&
+    message?.method === "tools/call"
+  ) {
+    try {
+      const broker = createOAuthBroker({
+        store: new UpstashStore()
+      });
+      authorization = await broker.resolveAccess(authorization);
+    } catch {
+      authorization = undefined;
+    }
+  }
+
+  const result = await handleRpc(message, { authorization });
 
   if (result.status === 401) {
     const metadata = `${originFor(request)}/.well-known/oauth-protected-resource/mcp`;
@@ -79,7 +68,7 @@ export default async function handler(request, response) {
       "WWW-Authenticate",
       `Bearer resource_metadata="${metadata}"`
     );
-    response.status(401).json({ error: "Google OAuth authorization required" });
+    response.status(401).json({ error: "MCP authorization required" });
     return;
   }
   if (result.body === null) {
