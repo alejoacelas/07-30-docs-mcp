@@ -188,7 +188,7 @@ The MCP server does not receive the OAuth client secret; it is supplied to Claud
 
 ## Path C: organization-owned remote
 
-Use this path only after reading the [organization-owned remote design and approval request](organization-owned-remote.md). The organization must own the Google Cloud project, Google OAuth client, MCP client credentials, deployment, domain, Redis store, encryption key, administration, and revocation process.
+Use this path only after reading the [organization-owned remote overview](organization-owned-remote.md), [approval matrix](organization-owned-remote/approvals.md), and [complete deployment runbook](organization-owned-remote/runbook.md). The organization must own the Google Cloud project, Google OAuth client, MCP client credentials, deployment, domain, Redis store, encryption key, administration, and revocation process.
 
 Create a Google Web OAuth client with this exact authorized redirect URI:
 
@@ -229,7 +229,9 @@ curl -i https://YOUR-PRODUCTION-ORIGIN/mcp
 
 The health route must return `"authMode": "broker"`. The unauthenticated MCP route must return an authorization challenge pointing to the deployment’s protected-resource metadata, not Google’s authorization server directly.
 
-In Claude’s custom connector form, use the production `/mcp` URL and the organization-owned `MCP_OAUTH_CLIENT_ID` and `MCP_OAUTH_CLIENT_SECRET`. Claude authenticates to this MCP; the MCP separately obtains and encrypts each user’s Google grant. A Google token sent directly to `/mcp` must be rejected.
+In Claude **Organization settings → Connectors**, an Owner adds the production `/mcp` URL and the organization-owned `MCP_OAUTH_CLIENT_ID` and `MCP_OAUTH_CLIENT_SECRET`, with **Individual sign-in** enabled. This Owner action is the Claude organization approval; no separate Anthropic review is required. Each staff member then connects under **Customize → Connectors** and authorizes their own Google account.
+
+Anthropic’s Managed authorization beta is optional central identity-provider provisioning, not a prerequisite for an organization custom connector.
 
 This fixes token passthrough. It does not remove remote-host trust: the deployment processes document bodies, and whoever controls the deployment and encryption key can access staff grants and documents. Complete the rollout gates in the organization-owned design before confidential use.
 

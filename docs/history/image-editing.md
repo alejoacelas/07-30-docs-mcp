@@ -10,6 +10,7 @@ Only screenshots that answer a setup or verification question remain in the publ
 - OAuth branding
 - Web-client callback
 - Claude remote-connector form and connected state
+- Claude organization custom-connector approval form
 - official MCP failure
 - remote test result
 - Google Docs visual result
@@ -30,6 +31,10 @@ Each image-edit prompt required:
 - add no prose, crop, watermark, or unrelated change.
 
 No screenshot visibly contained an OAuth client secret, access token, API key, or password. Redactions cover identifiers, not hidden credentials.
+
+The organization form was captured with every field blank. ImageGen added three
+callouts for the MCP URL, MCP client credentials, and Individual sign-in. It did not
+add values or redact the blank form.
 
 ## Source handling
 

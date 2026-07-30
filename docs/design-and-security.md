@@ -75,7 +75,8 @@ The broker in this repository implements this separation with short-lived opaque
 | Asset | Lifetime | If stolen |
 | --- | --- | --- |
 | OAuth client ID | Long-lived; public identifier | Identifies the app; not sufficient for access |
-| Web OAuth client secret | Long-lived confidential credential supplied to Claude/Anthropic’s connector configuration | Can enable app impersonation; rotate it |
+| Google Web OAuth client secret | Long-lived confidential credential held by the custom broker; Google’s hosted MCP instead asks Claude to hold the Google client secret | Can enable Google OAuth app impersonation; rotate it |
+| MCP OAuth client secret | Long-lived confidential credential held by the custom broker and Claude organization configuration | Can enable MCP client impersonation; rotate it in both places |
 | Desktop installed-client secret | Long-lived value embedded in the downloaded installed-app JSON | Not a confidential boundary; still keep the credential file out of the repository |
 | Google access token | Usually short-lived | Can call Google APIs allowed by its scopes |
 | Google refresh token | Long-lived | Can mint new access tokens until revoked |
