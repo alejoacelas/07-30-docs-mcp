@@ -38,7 +38,7 @@ For `addCommentReply`, the reply body belongs at `post.content`, not top-level `
 
 ## Tested local result
 
-The local implementation created an anchored comment, added a reply with `addCommentReply`, created a suggest-mode insertion, and recovered all three in a final read. Claude Desktop independently recovered the same preview state without adding Vercel to the request path.
+Claude Code used the local MCP to create an anchored comment, add a reply with `addCommentReply`, create a suggest-mode insertion, and recover all three in a final read. Every write returned `commentUpdateState: ALL_SAVED`. Claude Desktop independently recovered preview state through the same connector without adding Vercel to the request path.
 
 ![Claude Desktop local result; callouts mark the local connector and recovered state](images/guide/31-local-connector-test-passed.png)
 

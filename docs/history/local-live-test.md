@@ -22,7 +22,9 @@ The test printed IDs only to the local terminal. They are omitted here.
 - `commentUpdateState` was `ALL_SAVED`.
 - The final read returned a comment ID, reply post ID, and suggestion ID.
 
-Claude Desktop separately used `google-docs-preview-local` to recover the document’s comment and suggestion threads. A later multi-write Claude turn stalled in Claude’s approval UI after it was interrupted; the same writes passed through the local implementation directly.
+Claude Code then ran the complete sequence through `google-docs-preview-local`. Its final MCP read recovered the new anchored comment, reply post, and open suggestion; every write reported `ALL_SAVED`. Google merged the new insertion into an existing open suggestion at the same location by the same author.
+
+Claude Desktop separately used `google-docs-preview-local` to recover the document’s comment and suggestion threads. A later multi-write Desktop turn stalled in Claude’s approval UI after it was interrupted; the clean Claude Code run distinguishes that client-state problem from the connector and Google API.
 
 ## Error isolated during the test
 

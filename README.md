@@ -68,7 +68,7 @@ docs/       Setup, security analysis, evidence, and guide images
 npm test
 ```
 
-The test suite covers the preview schema, complete request forwarding, Docs-only scope metadata, canonical remote origins, redirect rejection, local token refresh, file permissions, OAuth challenges, and stateless protocol methods. The local implementation also passed a live comment, reply, and suggest-mode write/read check; Claude Desktop recovered preview comment and suggestion threads through the local connector.
+The test suite covers the preview schema, complete request forwarding, Docs-only scope metadata, canonical remote origins, redirect rejection, local token refresh, file permissions, OAuth challenges, and stateless protocol methods. Claude Code also passed a live local-MCP comment, reply, suggest-mode write, and final read; Claude Desktop recovered preview comment and suggestion threads through the same connector.
 
 ## Security status
 
