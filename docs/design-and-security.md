@@ -127,5 +127,7 @@ Primary references:
 - [Google OAuth installed apps](https://developers.google.com/identity/protocols/oauth2/native-app)
 - [Google OAuth policies](https://developers.google.com/identity/protocols/oauth2/policies)
 - [Google OAuth best practices](https://developers.google.com/identity/protocols/oauth2/resources/best-practices)
+- [Google Docs comments and suggestions](https://developers.google.com/workspace/docs/api/how-tos/suggestions)
+- [Google API OAuth scopes](https://developers.google.com/identity/protocols/oauth2/scopes)
 - [Claude remote custom connectors](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp)
 - [Claude local MCP servers](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop)

@@ -8,7 +8,7 @@ Does the connected Google Docs MCP in Claude expose the Developer Preview functi
 
 ## Test document
 
-[MCP Edit & Comment Test — Placeholder](https://docs.google.com/document/d/1xnXbzEX7AqFaHC0ipZoq9CDEOemcbB1UgBnph4P4y6A/edit)
+Private disposable Google Doc titled “MCP Edit & Comment Test — Placeholder.” The document ID is omitted from the public guide.
 
 ## Method
 

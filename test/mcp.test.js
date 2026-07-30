@@ -114,6 +114,12 @@ test("update_doc preserves writeControl and preview requests", async () => {
           content: "Test",
           range: { startIndex: 1, endIndex: 2 }
         }
+      },
+      {
+        addCommentReply: {
+          commentId: "comment.test",
+          post: { content: "Reply" }
+        }
       }
     ],
     writeControl: { writeMode: "SUGGEST" }
