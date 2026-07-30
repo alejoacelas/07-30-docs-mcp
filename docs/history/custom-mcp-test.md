@@ -39,7 +39,7 @@ Claude was instructed to use only the self-hosted connector:
 4. Append `CUSTOM_MCP_SUGGESTION_TEST` with `writeControl.writeMode: SUGGEST`.
 5. Read the document again with preview objects included.
 
-The first reply attempt placed `content` at the request’s top level and failed. Retrying with `post: {content: "…"}` matched the Docs API schema and succeeded.
+The first reply attempt placed `content` at the request’s top level and failed. Retrying with `addCommentReply.post.content` matched the Docs API schema and succeeded.
 
 ## Result
 

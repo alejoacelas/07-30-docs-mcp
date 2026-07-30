@@ -1,65 +1,81 @@
 <!--ai-->
-# Docs MCP Fixed
+# Google Docs Preview MCP
 
-A small remote MCP server for Google Docs that preserves the Developer Preview fields omitted by Google’s hosted Docs MCP.
+Create anchored comments, replies, and real suggested edits in Google Docs from Claude.
 
-It exposes:
+Google’s hosted Docs MCP recognizes the preview operations but does not expose enough of the Docs API schema to use them:
 
-- `read_doc`, including `suggestionsViewMode`, `commentsViewMode`, and `includeTabsContent`
-- `update_doc`, including the complete `requests` array and `writeControl.writeMode: SUGGEST`
+| Operation | Hosted MCP problem | This implementation |
+| --- | --- | --- |
+| Create comments | Strips `insertComment.content` | Passes the complete request |
+| Suggest edits | Omits top-level `writeControl` | Exposes `writeControl.writeMode: SUGGEST` |
+| Recover preview objects | Omits comment-view parameters | Exposes comment, suggestion, and tab view controls |
 
-The server stores no Google or OAuth credentials. Claude obtains a Google access token through the same OAuth setup used by Google’s hosted MCP, sends it as a bearer token, and this server passes it directly to `docs.googleapis.com`.
+The underlying Google Docs REST API accepts all three operations. See [what failed and why](docs/official-mcp-limitations.md).
 
-## Deploy
+## Choose a setup
 
-1. Install the [Vercel CLI](https://vercel.com/docs/cli).
-2. Run `vercel --yes` in this directory.
-3. Use `https://YOUR-PROJECT.vercel.app/mcp` as the remote MCP URL.
-4. In Claude, open **Customize → Connectors → Add → Add custom connector**.
-5. Expand **Advanced settings** and enter a Google OAuth web client whose authorized redirect URI is:
+| Setup | Works in | Trust boundary | Status |
+| --- | --- | --- | --- |
+| Local stdio | Claude Desktop and Claude Code | Your computer, Google, and Claude | Recommended for sensitive documents; tested |
+| Shared remote | Claude.ai and other cloud clients | Adds this project’s Vercel account | Experimental; not recommended for sensitive documents |
+| Self-hosted remote | Claude.ai and other cloud clients | Adds your deployment account and hosting provider | Experimental until it uses proper MCP OAuth |
 
-   ```
-   https://claude.ai/api/mcp/auth_callback
-   ```
+The local server is the current recommendation. Claude.ai cannot connect to localhost or stdio; use Claude Desktop or Claude Code for the local option. Tool results still go to Claude for processing.
 
-6. Use these scopes:
+The local token file is plaintext JSON protected by Unix file permissions, not an OS keychain. Local execution removes the independent MCP host, but it does not protect against malware running as your user or an administrator.
 
-   ```
-   https://www.googleapis.com/auth/drive.readonly
-   https://www.googleapis.com/auth/documents.readonly
-   https://www.googleapis.com/auth/drive
-   https://www.googleapis.com/auth/documents
-   ```
+## Local quick start
 
-7. Add the connector, click **Connect**, choose the intended Workspace account, and allow the four requested permissions.
+```sh
+npm test
+npm run auth -- --client /path/to/desktop-oauth-client.json
+claude mcp add --scope user google-docs-preview-local -- \
+  node "$PWD/bin/docs-mcp-local.js"
+```
 
-The server needs no environment variables: Claude sends a short-lived Google access token with each request. If you keep an operator backup of the OAuth client ID and secret, copy `.env.example` to `.env.local`, set its mode to `600`, and never deploy or commit it. `.vercelignore` and `.gitignore` exclude local environment files.
+The OAuth flow requests:
 
-## Test
+```text
+https://www.googleapis.com/auth/documents
+```
+
+This is the minimum scope for arbitrary document IDs, but Google classifies it as Sensitive and describes it as permission to see, edit, create, and delete all Google Docs documents. A `drive.file` design can narrow access to files a user explicitly selects, but it requires a Google Picker or per-file grant flow that this document-ID-only prototype does not implement.
+
+See the [complete setup guide](docs/setup.md) before authorizing an account.
+
+## Remote test endpoint
+
+```text
+https://docs-mcp-fixed.vercel.app/mcp
+```
+
+This endpoint is useful for reproducing the adapter fix in Claude.ai. It currently forwards a Google access token unchanged, which the MCP security specification prohibits as token passthrough. Do not treat it as a production shared service. Read [design and security](docs/design-and-security.md) first.
+
+## Repository map
+
+```text
+api/        Vercel HTTP transport
+bin/        Local authorization and stdio entrypoints
+src/        Shared MCP and Google Docs logic
+test/       Protocol, passthrough, and token-refresh tests
+docs/       Setup, security analysis, evidence, and guide images
+```
+
+## Verification
 
 ```sh
 npm test
 ```
 
-The test suite verifies that preview fields are exposed and forwarded unchanged, bearer tokens are not returned, and unauthenticated tool calls produce an OAuth challenge.
+The test suite covers the preview schema, complete request forwarding, Docs-only scope metadata, canonical remote origins, redirect rejection, local token refresh, file permissions, OAuth challenges, and stateless protocol methods. The local implementation also passed a live comment, reply, and suggest-mode write/read check; Claude Desktop recovered preview comment and suggestion threads through the local connector.
 
-The deployed reference instance is:
+## Security status
 
-- MCP: `https://docs-mcp-fixed.vercel.app/mcp`
-- Health check: `https://docs-mcp-fixed.vercel.app/health`
+- Local tokens are plaintext JSON stored outside the repository with mode `600`.
+- Docs tool calls construct requests only for the fixed `docs.googleapis.com` origin; local OAuth separately contacts Google’s documented authorization and token endpoints.
+- Tool annotations mark writes as destructive, but approval behavior is enforced by the MCP client. Configure per-call approval for writes.
+- The remote transport is experimental until token passthrough is replaced with a separate MCP authorization layer.
 
-It passed an authenticated Claude test that created an anchored comment, replied to that comment, inserted text with `writeControl.writeMode: SUGGEST`, and recovered all three objects in a final read.
-
-## Security
-
-- Deploy only code you have reviewed.
-- Do not log request headers or Google API response bodies.
-- Keep the Vercel project free of analytics or request-recording middleware.
-- Treat documents as untrusted content; an MCP client should still confirm consequential writes.
-- The bearer token is forwarded only to `https://docs.googleapis.com`.
-- The deployment platform still handles the HTTPS request and transient bearer token. Use infrastructure whose operator and logging policy you trust.
-
-## Why this exists
-
-As of 29 July 2026, Google’s hosted endpoint advertised preview request names but omitted the top-level `writeControl` field from `update_doc`, omitted comment-view parameters from `read_doc`, and stripped `insertComment.content`. The underlying Docs REST API accepted the same operations.
+Read [SECURITY.md](SECURITY.md) and the full [threat model](docs/design-and-security.md).
 <!--/ai-->
