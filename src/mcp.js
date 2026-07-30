@@ -34,6 +34,12 @@ export const TOOLS = [
     title: "Read Google Doc",
     description:
       "Read a Google Doc through the Google Docs API. Set suggestionsViewMode to SUGGESTIONS_INLINE for write-compatible indexes and commentsViewMode to COMMENTS_VIEW_MODE_INCLUDED to retrieve preview comments and suggestion threads.",
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true
+    },
     inputSchema: {
       type: "object",
       properties: {
@@ -58,6 +64,12 @@ export const TOOLS = [
     title: "Update Google Doc",
     description:
       "Apply a Google Docs documents.batchUpdate request without stripping preview fields. Supports insertComment, comment replies, suggestion management, and writeControl.writeMode SUGGEST.",
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: false,
+      openWorldHint: true
+    },
     inputSchema: {
       type: "object",
       properties: {

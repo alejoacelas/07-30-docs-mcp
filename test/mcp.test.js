@@ -12,7 +12,9 @@ test("tool schema exposes preview read and write fields", () => {
   const update = TOOLS.find((tool) => tool.name === "update_doc");
   assert.ok(read.inputSchema.properties.commentsViewMode);
   assert.ok(read.inputSchema.properties.suggestionsViewMode);
+  assert.equal(read.annotations.readOnlyHint, true);
   assert.ok(update.inputSchema.properties.writeControl);
+  assert.equal(update.annotations.destructiveHint, true);
   assert.deepEqual(
     update.inputSchema.properties.writeControl.properties.writeMode.enum,
     ["WRITE_MODE_UNSPECIFIED", "EDIT", "SUGGEST"]

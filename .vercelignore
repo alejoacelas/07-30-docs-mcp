@@ -3,3 +3,8 @@
 !.env.example
 .git
 test
+bin
+docs
+README.md
+SECURITY.md
+LICENSE
