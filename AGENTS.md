@@ -1,6 +1,8 @@
 <!--ai-->
 # Google Docs Preview MCP
 
+Read [README.md](README.md) before changing this project.
+
 Use the Stripe Projects CLI to manage provisioned services and credentials. Do not
 read or hand-edit `.projects/` or `.env`.
 
