@@ -18,8 +18,8 @@ The underlying Google Docs REST API accepts all three operations. See [what fail
 | Setup | Works in | Trust boundary | Status |
 | --- | --- | --- | --- |
 | Local stdio | Claude Desktop and Claude Code | Your computer, Google, and Claude | Recommended for sensitive documents; tested |
-| Shared remote | Claude.ai and other cloud clients | Adds this project’s Vercel account | Experimental; not recommended for sensitive documents |
-| Organization-owned remote | Claude.ai and other cloud clients | Adds organization-approved hosting and storage providers | Broker implemented; requires organization-owned deployment and security review |
+| Organization connector | Claude.ai and other cloud clients | Adds the organization’s hosting and storage providers | End-to-end pilot passed; production ownership and security review remain |
+| Personal remote | Claude.ai and other cloud clients | Adds a developer-owned host | Test only; do not use for sensitive documents |
 
 The local server is the current recommendation. Claude.ai cannot connect to localhost or stdio; use Claude Desktop or Claude Code for the local option. Tool results still go to Claude for processing.
 
@@ -44,13 +44,15 @@ This is the minimum scope for arbitrary document IDs, but Google classifies it a
 
 See the [complete setup guide](docs/setup.md) before authorizing an account.
 
-## Remote test endpoint
+## Organization connector
 
-```text
-https://docs-mcp-fixed.vercel.app/mcp
-```
+One Google Cloud project and OAuth app can serve the team. Staff do not create Cloud
+projects or handle credentials: a Claude Owner publishes the connector once, then each
+registered Preview tester clicks **Connect** and authorizes their own Google account.
+Read the [staff onboarding guide](docs/user-onboarding.md), [administrator runbook](docs/organization-owned-remote/runbook.md), and [pilot result](docs/organization-owned-remote/pilot.md).
 
-This endpoint is useful for reproducing the adapter fix in Claude.ai. It currently forwards a Google access token unchanged, which the MCP security specification prohibits as token passthrough. Do not treat it as a production shared service. Read [the organization-owned remote design](docs/organization-owned-remote.md) before considering a team deployment.
+The pilot deployment is developer-owned. Move the deployment, Redis store, secrets and
+administration to 80,000 Hours accounts before approving confidential documents.
 
 ## Repository map
 
@@ -72,14 +74,18 @@ method, scripts, inputs, and checks to the current output.
 npm test
 ```
 
-The test suite covers the preview schema, complete request forwarding, Docs-only scope metadata, canonical remote origins, redirect rejection, local token refresh, file permissions, OAuth challenges, and stateless protocol methods. Claude Code also passed a live local-MCP comment, reply, suggest-mode write, and final read; Claude Desktop recovered preview comment and suggestion threads through the same connector.
+The test suite covers the preview schema, complete request forwarding, Docs-only scope metadata, canonical remote origins, redirect rejection, local token refresh, file permissions, OAuth challenges, and stateless protocol methods. Claude.ai, Claude Code and Claude Desktop have each passed live reads. The Claude.ai organization pilot created and recovered an anchored comment, its reply and a real unresolved suggestion, then the Google Docs UI was inspected.
 
 ## Security status
 
 - Local tokens are plaintext JSON stored outside the repository with mode `600`.
 - Docs tool calls construct requests only for the fixed `docs.googleapis.com` origin; local OAuth separately contacts Google’s documented authorization and token endpoints.
 - Tool annotations mark writes as destructive, but approval behavior is enforced by the MCP client. Configure per-call approval for writes.
-- The source tree includes a separate MCP authorization broker. The live endpoint remains in legacy mode until its Google client, deployment, Redis, keys, and administration are transferred to organization-owned accounts and reviewed.
+- The remote uses separate MCP and Google tokens. Google grants are encrypted at rest; Claude never receives the Google refresh token.
+- The pilot proved one member’s flow. A second user and organizational unit have not
+  been tested.
+- The pilot host and Redis resources are still developer-owned. Organization ownership,
+  admin-led offboarding, rate limits, monitoring and security review remain.
 
 Read [SECURITY.md](SECURITY.md), the [organization-owned deployment decision](docs/organization-owned-remote.md), and the full [threat model](docs/design-and-security.md).
 <!--/ai-->

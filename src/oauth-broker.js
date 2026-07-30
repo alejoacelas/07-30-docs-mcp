@@ -18,6 +18,10 @@ const GOOGLE_STATE_TTL = 10 * 60;
 const REFRESH_TTL = 30 * 24 * 60 * 60;
 const GRANT_TTL = REFRESH_TTL;
 
+function sessionKey(grantId) {
+  return `oauth:session:${grantId}`;
+}
+
 function required(env, name) {
   if (!env[name]) throw new Error(`${name} is required`);
   return env[name];
@@ -327,6 +331,9 @@ export function createOAuthBroker({
   async function issueTokens(record) {
     const accessToken = randomToken();
     const refreshToken = randomToken();
+    const accessStorageKey = accessKey(accessToken);
+    const refreshStorageKey = refreshKey(refreshToken);
+    const sessionStorageKey = sessionKey(record.grantId);
     const accessRecord = {
       grantId: record.grantId,
       clientId: record.clientId,
@@ -338,14 +345,27 @@ export function createOAuthBroker({
       ...accessRecord,
       expiresAt: now() + REFRESH_TTL * 1000
     };
+    const previousSession = await store.get(sessionStorageKey);
     await Promise.all([
-      store.set(accessKey(accessToken), JSON.stringify(accessRecord), ACCESS_TTL),
+      store.set(accessStorageKey, JSON.stringify(accessRecord), ACCESS_TTL),
       store.set(
-        refreshKey(refreshToken),
+        refreshStorageKey,
         seal(refreshRecord, config.tokenKey, "refresh-record"),
         REFRESH_TTL
-      )
+      ),
+      store.set(
+        sessionStorageKey,
+        JSON.stringify({ accessStorageKey, refreshStorageKey }),
+        REFRESH_TTL
+      ),
     ]);
+    if (previousSession) {
+      const previous = JSON.parse(previousSession);
+      await Promise.all([
+        store.del(previous.accessStorageKey),
+        store.del(previous.refreshStorageKey)
+      ]);
+    }
     return {
       access_token: accessToken,
       token_type: "Bearer",
@@ -457,10 +477,24 @@ export function createOAuthBroker({
     const form = parseForm(body);
     assertClient(authorizationHeader, form, config);
     const token = form.token || "";
-    const refresh = await store.getdel(refreshKey(token));
-    await store.del(accessKey(token));
-    if (refresh) {
-      const record = open(refresh, config.tokenKey, "refresh-record");
+    const [refresh, access] = await Promise.all([
+      store.getdel(refreshKey(token)),
+      store.getdel(accessKey(token))
+    ]);
+    const record = refresh
+      ? open(refresh, config.tokenKey, "refresh-record")
+      : access
+        ? JSON.parse(access)
+        : null;
+    if (record) {
+      const session = await store.getdel(sessionKey(record.grantId));
+      if (session) {
+        const current = JSON.parse(session);
+        await Promise.all([
+          store.del(current.accessStorageKey),
+          store.del(current.refreshStorageKey)
+        ]);
+      }
       const encrypted = await store.get(grantKey(record.grantId));
       try {
         if (encrypted) {

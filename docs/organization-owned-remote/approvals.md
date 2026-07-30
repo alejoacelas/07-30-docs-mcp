@@ -13,6 +13,10 @@
 | Add the connector to Claude | Claude Owner or Primary Owner | Claude → Organization settings → Connectors | No Anthropic review |
 | Connect a staff Google account | Each staff member | Claude → Customize → Connectors → Connect | No, after the previous approvals |
 
+The shared-project model separates administrator setup from user onboarding. Staff
+need a Preview-registered Workspace email and permission to use the OAuth app; they do
+not need Google Cloud IAM, a project or credentials.
+
 ## What a developer can do alone
 
 A developer can complete these steps without a Workspace or Claude administrator if they already have the corresponding account permissions:
@@ -47,6 +51,10 @@ Google’s terms permit Pre-GA applications for testing inside the participant�
 To create a project inside the organization, the developer needs `resourcemanager.projects.create`, normally through [`roles/resourcemanager.projectCreator`](https://docs.cloud.google.com/resource-manager/docs/creating-managing-projects) on the target organization or folder.
 
 Inside the project, the least-privilege role for creating the OAuth branding and client is [`roles/oauthconfig.editor`](https://docs.cloud.google.com/iam/docs/roles-permissions/oauthconfig). Project Editor and Project Owner also contain the relevant permissions.
+
+Organization-level IAM visibility is not required when the project already exists
+inside the organization and the operator can manage that project. Project creation is
+the step that requires Project Creator on the parent organization or folder.
 
 The OAuth app should be:
 
@@ -125,6 +133,10 @@ Before starting, confirm access by opening the three control surfaces:
 | Claude Organization settings → Connectors | You can see the **Add** button |
 
 If only the Google Admin page is unavailable, ask a Security Settings administrator to perform the exact OAuth-client configuration above. Nothing needs to be requested from Anthropic for Individual sign-in.
+
+The [pilot role check](pilot.md) found Project Owner access on an organization-owned
+project but no permission to read organization IAM or list folders. OAuth setup and the
+Claude test still passed. That is the useful threshold for an existing project.
 
 ## Internal approval request
 

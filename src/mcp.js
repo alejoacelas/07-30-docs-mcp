@@ -33,7 +33,7 @@ export const TOOLS = [
     name: "read_doc",
     title: "Read Google Doc",
     description:
-      "Read a Google Doc through the Google Docs API. Set suggestionsViewMode to SUGGESTIONS_INLINE for write-compatible indexes and commentsViewMode to COMMENTS_VIEW_MODE_INCLUDED to retrieve preview comments and suggestion threads.",
+      "Read a Google Doc through the Google Docs API. Set suggestionsViewMode to SUGGESTIONS_INLINE for write-compatible indexes and commentsViewMode to COMMENTS_VIEW_MODE_INCLUDED to retrieve preview comments and suggestion threads. When commentsViewMode is present, includeTabsContent defaults to true because Google requires both parameters together.",
     annotations: {
       readOnlyHint: true,
       destructiveHint: false,
@@ -85,7 +85,7 @@ export const TOOLS = [
             additionalProperties: true
           },
           description:
-            "Google Docs API Request objects in documents.batchUpdate order."
+            "Google Docs API Request objects in documents.batchUpdate order. Anchored comment: {\"insertComment\":{\"range\":{\"startIndex\":1,\"endIndex\":5,\"tabId\":\"t.0\"},\"content\":\"Review this\"}}. Reply: {\"addCommentReply\":{\"commentId\":\"COMMENT_ID\",\"post\":{\"content\":\"Reply text\"}}}."
         },
         writeControl: {
           type: "object",

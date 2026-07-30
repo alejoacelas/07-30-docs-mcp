@@ -123,14 +123,20 @@ test("authorization code flow separates MCP and Google tokens", async () => {
     assert.doesNotMatch(item.value, /google-refresh/);
   }
 
-  await broker.revoke(
-    { token: tokenResult.body.refresh_token },
-    basicAuth()
-  );
+  await broker.revoke({ token: tokenResult.body.access_token }, basicAuth());
   await assert.rejects(
     broker.resolveAccess(`Bearer ${tokenResult.body.access_token}`),
-    /Google grant is unavailable/
+    /Invalid or expired MCP access token/
   );
+  const revokedRefresh = await broker.token(
+    {
+      grant_type: "refresh_token",
+      refresh_token: tokenResult.body.refresh_token,
+      resource: "https://mcp.example.org/mcp"
+    },
+    basicAuth()
+  );
+  assert.equal(revokedRefresh.body.error, "invalid_grant");
   assert.equal(
     googleRequests.at(-1).url,
     "https://oauth2.googleapis.com/revoke"
@@ -190,6 +196,10 @@ test("refresh tokens rotate and remain audience-bound", async () => {
   );
   assert.equal(second.status, 200);
   assert.notEqual(second.body.refresh_token, first.body.refresh_token);
+  await assert.rejects(
+    broker.resolveAccess(`Bearer ${first.body.access_token}`),
+    /Invalid or expired MCP access token/
+  );
 
   const replay = await broker.token(
     {

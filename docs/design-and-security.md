@@ -45,7 +45,7 @@ flowchart LR
 
 The OAuth refresh token stays on the device as plaintext JSON protected by mode `600`. That blocks other ordinary local accounts, not same-user malware or an administrator. Selected document content still reaches Claude as a tool result.
 
-### Current experimental remote
+### Superseded token-passthrough prototype
 
 ```mermaid
 flowchart LR
@@ -56,7 +56,9 @@ flowchart LR
     V -->|"tool result"| C
 ```
 
-Vercel and the MCP operator process the token and document data. TLS and a no-explicit-logs code path do not prevent an operator, compromised deployment account, or active host from reading them. This trust is irreducible while a third-party remote proxy sits in the path. Forwarding the same Google token is [token passthrough, which MCP explicitly forbids](https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices#token-passthrough).
+This was the first remote prototype and is retained only to explain the threat. The
+live pilot no longer uses this flow. Forwarding the same Google token is
+[token passthrough, which MCP explicitly forbids](https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices#token-passthrough).
 
 ### Production remote
 
@@ -68,7 +70,7 @@ flowchart LR
     M --> K["Encrypted per-user token store"]
 ```
 
-The broker in this repository implements this separation with short-lived opaque MCP access tokens, rotating refresh tokens, exact resource and client binding, one-time authorization codes, and encrypted Google grants in Redis. Its ownership and rollout requirements are in [Organization-owned remote MCP](organization-owned-remote.md). The public test deployment has not been switched to this mode.
+The broker in this repository implements this separation with short-lived opaque MCP access tokens, rotating refresh tokens, exact resource and client binding, one-time authorization codes, and encrypted Google grants in Redis. Its ownership and rollout requirements are in [Organization-owned remote MCP](organization-owned-remote.md). The temporary Claude.ai pilot uses this mode and passed the live Docs workflow; its hosting and Redis ownership are not production-ready.
 
 ## Credential and data classification
 
@@ -103,7 +105,7 @@ MCP servers can change behavior after installation. Do not enable permanent appr
 
 - Use local stdio for confidential individual work when Claude Desktop or Claude Code is acceptable.
 - Use an organization-owned, OAuth-brokered remote service for Claude.ai, mobile, or team workflows.
-- Use the current remote endpoint only for disposable or non-sensitive tests.
+- Use the current developer-owned pilot only for disposable or non-sensitive tests.
 
 Claude.ai custom connectors originate from Anthropic’s cloud and therefore require a publicly reachable endpoint; localhost and stdio are not available there. Anthropic documents local MCP as a separate Claude Desktop mechanism. Local execution removes Vercel and this repository’s operator from the data path, but it does not prevent selected tool results from going to Claude or Google, and its current plaintext token file remains exposed to same-user malware.
 

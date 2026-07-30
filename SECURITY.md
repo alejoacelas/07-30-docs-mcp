@@ -2,9 +2,18 @@
 
 ## Current status
 
-Use the local stdio server for sensitive documents. The shared remote endpoint is experimental because it forwards Google access tokens unchanged, a pattern prohibited by the MCP authorization specification.
+Use the local stdio server for sensitive documents until the remote service is
+transferred to approved organization accounts. The remote broker separates MCP and
+Google tokens and encrypts Google grants, but its temporary Vercel and Redis resources
+are developer-owned.
 
 See [Design and security](docs/design-and-security.md) for the threat model, data flows, mitigations, and production requirements.
+
+The broker revokes the current MCP access token, MCP refresh token and encrypted
+Google grant when a user presents either MCP token. It does not yet keep a
+subject-to-grant registry or expose an administrator revocation endpoint. Until those
+exist, offboarding requires the member to disconnect or a Google Workspace
+administrator to revoke the app’s access. Treat that as a production blocker.
 
 ## Secrets
 

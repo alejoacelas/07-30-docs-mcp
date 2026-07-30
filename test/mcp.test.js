@@ -93,6 +93,62 @@ test("read_doc forwards preview query fields and bearer token", async () => {
   assert.equal(request.options.redirect, "error");
 });
 
+test("read_doc requires tabs content when comments are requested", async () => {
+  let requestUrl;
+  const fetchImpl = async (url) => {
+    requestUrl = url;
+    return new Response(JSON.stringify({ documentId: "doc", tabs: [] }), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    });
+  };
+  await handleRpc(
+    {
+      jsonrpc: "2.0",
+      id: 41,
+      method: "tools/call",
+      params: {
+        name: "read_doc",
+        arguments: {
+          documentId: "doc",
+          commentsViewMode: "COMMENTS_VIEW_MODE_INCLUDED",
+          includeTabsContent: false
+        }
+      }
+    },
+    { authorization: "Bearer test-token", fetchImpl }
+  );
+  assert.match(requestUrl, /commentsViewMode=COMMENTS_VIEW_MODE_INCLUDED/);
+  assert.match(requestUrl, /includeTabsContent=true/);
+});
+
+test("read_doc preserves an explicit false tabs setting without comments", async () => {
+  let requestUrl;
+  const fetchImpl = async (url) => {
+    requestUrl = url;
+    return new Response(JSON.stringify({ documentId: "doc" }), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    });
+  };
+  await handleRpc(
+    {
+      jsonrpc: "2.0",
+      id: 42,
+      method: "tools/call",
+      params: {
+        name: "read_doc",
+        arguments: {
+          documentId: "doc",
+          includeTabsContent: false
+        }
+      }
+    },
+    { authorization: "Bearer test-token", fetchImpl }
+  );
+  assert.match(requestUrl, /includeTabsContent=false/);
+});
+
 test("update_doc preserves writeControl and preview requests", async () => {
   let forwarded;
   const fetchImpl = async (_url, options) => {

@@ -8,7 +8,8 @@ Use a disposable Google Doc containing the exact phrase `COMMENT_ANCHOR_TWO`.
 Use only [CONNECTOR NAME].
 
 1. Read this document with suggestions inline, comments included, and tab
-   content included.
+   content included. The connector automatically adds includeTabsContent=true
+   when comments are requested.
 2. Add an anchored comment to the exact phrase COMMENT_ANCHOR_TWO.
 3. Reply to the comment you just created with addCommentReply.post.content.
 4. Append the text CUSTOM_MCP_SUGGESTION_TEST using top-level
@@ -30,11 +31,17 @@ Grant one-time, per-call approval for each write. Do not select permanent approv
 
 For `addCommentReply`, the reply body belongs at `post.content`, not top-level `content`. Check `commentUpdateState` as well as the HTTP result because Google reports comment persistence separately from batch success.
 
-## Tested remote result
+## Tested Claude.ai organization result
 
-![Claude remote result; callouts mark the successful suggestion write and complete test](images/guide/28-custom-mcp-test-passed.png)
+The organization connector created and recovered an anchored comment, its reply and an
+open replacement suggestion. The Google Docs UI independently showed the thread and
+the suggestion’s Accept/Reject controls.
 
-![Google Docs result; callouts mark the anchor, reply thread, and suggested insertion](images/guide/30-custom-mcp-reply-and-suggestion.png)
+![Claude recovered the reply and open suggestion](images/guide/34-org-pilot-reply-suggestion-pass.png)
+
+![Google Docs showed the anchored thread and suggestion](images/guide/33-org-pilot-doc-visible-proof.png)
+
+See the [organization connector pilot record](reproduce/organization-connector-pilot.md).
 
 ## Tested local result
 

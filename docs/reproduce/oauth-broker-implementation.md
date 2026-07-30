@@ -29,8 +29,11 @@ A free Upstash Redis instance was provisioned for development. It is not the pro
 
 ## Verification
 
-Automated tests cover metadata, the complete authorization flow, token separation, encrypted storage, one-time code use, refresh rotation, audience rejection, and revocation. The production endpoint remains in legacy mode because the development Google client has not been configured with the broker callback and the service has not been transferred to 80,000 Hours-owned accounts.
+Automated tests cover metadata, the complete authorization flow, token separation, encrypted storage, one-time code use, refresh rotation, audience rejection, and revocation. A temporary broker deployment also passed individual sign-in and the live comments, replies and suggestions test in Claude.ai. The deployment and data store still need transfer to 80,000 Hours-owned accounts.
 
-## Browser limitation
+## Browser verification
 
-The available browser-control runtime reported no browser session, so the Google Cloud redirect URI and Claude connector could not be changed or visually verified during this run. No production authentication mode was changed without that end-to-end test.
+The Google OAuth callback was added, a Claude Owner published the temporary connector,
+the Workspace tester completed Google consent and the Google Docs UI showed the
+anchored comment, reply and unresolved suggestion. See the
+[organization connector pilot](organization-connector-pilot.md).

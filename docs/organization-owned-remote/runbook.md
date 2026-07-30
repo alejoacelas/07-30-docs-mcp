@@ -11,6 +11,10 @@ At the end:
 - Claude receives MCP tokens, not Google tokens;
 - comments, replies, and suggested edits pass on a disposable document.
 
+End users do not create Cloud projects or receive OAuth credentials. One shared
+project and Web OAuth client serve the connector; each registered tester supplies
+only their own Google consent.
+
 ## 0. Assign owners
 
 Record names for:
@@ -27,10 +31,10 @@ One person may hold several roles. Use at least two administrators for productio
 ## 1. Register Google Preview access
 
 1. Select or create the organization-owned Google Cloud project.
-2. Record its numeric project number.
-3. Submit the [Google Workspace Developer Preview application](https://docs.google.com/forms/d/e/1FAIpQLSd7BiMXXHDlUDkF7G0TSY5zfJbQwFNH3m6K_ZYFi3vCHLFbng/viewform) with the first tester’s Workspace email and project number.
+2. Record its numeric project number once.
+3. Submit the [Google Workspace Developer Preview application](https://docs.google.com/forms/d/e/1FAIpQLSd7BiMXXHDlUDkF7G0TSY5zfJbQwFNH3m6K_ZYFi3vCHLFbng/viewform) with the first tester’s Workspace email and the shared project number.
 4. Wait for both confirmation emails: Google first verifies the Workspace account, then registers the Cloud project.
-5. For additional testers, use the program’s [email-address request](https://docs.google.com/forms/d/e/1FAIpQLScXoXMKj6pzgLNXzwuA2n4kWfFXgebXO8pJy6aZzH9C4hmw5w/viewform).
+5. For additional testers, the connector owner uses the program’s [email-address request](https://docs.google.com/forms/d/e/1FAIpQLScXoXMKj6pzgLNXzwuA2n4kWfFXgebXO8pJy6aZzH9C4hmw5w/viewform). Testers do not create another project.
 6. If the production project differs from the original test project, use the program’s [Cloud-project request](https://docs.google.com/forms/d/e/1FAIpQLSebRuwRJzPYpIGAg2HcEhX7uVDjbCvABb2hNsrrTWj9PaPPKw/viewform).
 
 Do not proceed from “form submitted.” Confirm that both the tester’s email and the production project are registered.
@@ -129,7 +133,9 @@ Verify before touching Claude:
 curl https://YOUR-PRODUCTION-ORIGIN/health
 curl https://YOUR-PRODUCTION-ORIGIN/.well-known/oauth-protected-resource/mcp
 curl https://YOUR-PRODUCTION-ORIGIN/.well-known/oauth-authorization-server
-curl -i https://YOUR-PRODUCTION-ORIGIN/mcp
+curl -i -X POST https://YOUR-PRODUCTION-ORIGIN/mcp \
+  -H 'content-type: application/json' \
+  --data '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"read_doc","arguments":{"documentId":"probe"}}}'
 ```
 
 Required results:
@@ -137,7 +143,7 @@ Required results:
 - health reports `ok: true` and `authMode: broker`;
 - protected-resource metadata names `https://YOUR-PRODUCTION-ORIGIN/mcp`;
 - authorization metadata names the same origin as issuer;
-- unauthenticated `/mcp` returns `401` with the protected-resource metadata URL;
+- an unauthenticated `tools/call` POST to `/mcp` returns `401` with the protected-resource metadata URL;
 - no metadata points directly to Google as the MCP authorization server.
 
 ## 6. Add the connector to the Claude organization
@@ -194,6 +200,11 @@ Before testing document writes:
 
 The automated suite covers these invariants. The live checks prove that the deployed environment matches the source configuration.
 
+The current broker can revoke a session when given either current MCP token. It
+cannot look up a grant by Workspace identity. Add a subject-bound grant registry and
+an authenticated operator revoke action before production so an administrator can
+offboard an unavailable user.
+
 ## 9. Test the Docs workflow
 
 Use the [verification prompt](../testing.md) on a disposable document. Keep write-tool approval set to per-call.
@@ -206,6 +217,10 @@ Pass only if:
 - a new session can read back the comment, reply, and suggestion;
 - the final document is visually inspected in Google Docs.
 
+The 30 July pilot met these conditions:
+
+![The comment thread and open suggestion in Google Docs](../images/guide/33-org-pilot-doc-visible-proof.png)
+
 ## 10. Pilot and production gates
 
 Pilot:
@@ -213,9 +228,9 @@ Pilot:
 - named testers only;
 - non-confidential documents;
 - provider logging and retention reviewed;
-- user and emergency revocation tested;
+- user-token revocation tested;
 - deployment and Redis access limited to named staff;
-- one person other than the developer can execute the offboarding procedure.
+- second-user and second-organizational-unit consent tested.
 
 Production:
 
@@ -224,4 +239,6 @@ Production:
 - request size, rate, and timeout limits added;
 - monitoring detects replay and abnormal write volume without recording document bodies or tokens;
 - encryption-key rotation and full-grant revocation exercised;
+- an administrator can find and revoke a grant by Workspace identity without the
+  member’s token;
 - the Google Preview terms still permit the intended use.

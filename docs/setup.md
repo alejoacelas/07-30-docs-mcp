@@ -7,7 +7,7 @@ This guide uses a custom MCP because [Google’s hosted Docs MCP omits the field
 | Path | Use it when | Security |
 | --- | --- | --- |
 | Local stdio | You can use Claude Desktop or Claude Code | Recommended for sensitive documents |
-| Shared remote | You require Claude.ai and are testing non-sensitive documents | Experimental |
+| Developer-owned remote | You require Claude.ai and are testing non-sensitive documents | Test only |
 | Organization-owned remote | Your organization requires Claude.ai and can own the service | Separate MCP and Google tokens; requires organizational review |
 
 Claude.ai cannot connect directly to a local MCP. Its custom-connector requests originate from Anthropic’s cloud and require a public URL.
@@ -15,14 +15,21 @@ Claude.ai cannot connect directly to a local MCP. Its custom-connector requests 
 ## Prerequisites
 
 - A managed Google Workspace account eligible for the Developer Preview; a personal Gmail account is not enough.
-- Permission to create or configure a Google Cloud project and OAuth clients.
+- For an administrator or local setup: permission to configure a Google Cloud project and OAuth clients.
 - Developer Preview approval for the Workspace account and Cloud project.
 - Node.js 20 or newer for the raw local server.
 - Permission to edit Claude’s MCP configuration. On managed Claude Team or Enterprise plans, an Owner may need to add a remote connector.
 
 Whichever path you choose, document content returned by the tool is sent to Claude for processing.
 
+Organization-connector users need none of the Cloud or credential permissions above.
+The administrator completes the common setup once; each registered tester follows the
+[staff onboarding guide](user-onboarding.md).
+
 ## Common Google setup
+
+Complete this section once per local client or organization connector. Do not ask each
+organization member to create another project.
 
 ### 1. Create or select a Cloud project
 
@@ -154,41 +161,43 @@ The tested local connector recovered two open comment threads and one open sugge
 
 ![Local connector passed; callouts mark the connector and recovered state](images/guide/31-local-connector-test-passed.png)
 
-## Path B: shared experimental remote
+## Path B: developer-owned remote
 
-Use this only for non-sensitive testing in Claude.ai. Read the [remote threat model](design-and-security.md#current-experimental-remote) first.
+Use this only to reproduce the broker on infrastructure you control. Do not send staff
+to a public shared endpoint with their own Google client credentials: the secure
+design needs separate Claude-to-MCP credentials and Google credentials held by the
+broker.
 
 ### 5B. Create a Web OAuth client
 
-Create a **Web application** client with this exact authorized redirect URI:
+Create a **Web application** client with the broker’s exact callback:
 
 ```text
-https://claude.ai/api/mcp/auth_callback
+https://YOUR-REMOTE-ORIGIN/oauth/google/callback
 ```
 
-![OAuth web client; callouts mark the callback URI and Create button](images/guide/08-oauth-client-form.png)
-
-Copy its client ID and secret. Never commit, publish, or screenshot the secret. Each user of the shared endpoint must supply their own Web client; never distribute the endpoint operator’s client secret.
+Copy its client ID and secret into the remote secret manager. Never enter these Google
+credentials in Claude.
 
 ### 6B. Add the remote connector
 
-In Claude, open **Customize → Connectors → Add → Add custom connector**:
+Deploy the broker as described in Path C. In Claude, add a custom connector with:
 
 - Name: `Google Docs Preview`
-- Remote MCP URL: `https://docs-mcp-fixed.vercel.app/mcp`
-- OAuth client ID and secret: your own web client
+- Remote MCP URL: `https://YOUR-REMOTE-ORIGIN/mcp`
+- OAuth client ID and secret: the independent `MCP_OAUTH_CLIENT_ID` and
+  `MCP_OAUTH_CLIENT_SECRET`
 
-![Remote connector form; callouts mark the endpoint, OAuth fields, and Add button](images/guide/25-custom-mcp-connector-form.png)
+Connect the intended Workspace account and approve the Docs scope. The host processes
+document bodies and can decrypt Google grants while serving requests, so this path is
+not suitable for sensitive documents on a personal deployment.
 
-Connect the intended Workspace account and approve the Docs scope.
-
-![Remote connector connected; callouts mark the endpoint, tools, and approval mode](images/guide/27-custom-mcp-connected.png)
-
-The MCP server does not receive the OAuth client secret; it is supplied to Claude/Anthropic’s connector configuration for the OAuth flow. Do not assume anything further about the client’s storage implementation. The server does process the resulting Google access token and document payloads.
+Claude stores the MCP client secret, not the Google client secret. The broker exchanges
+its own short-lived MCP tokens for the encrypted Google grant when a tool runs.
 
 ## Path C: organization-owned remote
 
-Use this path only after reading the [organization-owned remote overview](organization-owned-remote.md), [approval matrix](organization-owned-remote/approvals.md), and [complete deployment runbook](organization-owned-remote/runbook.md). The organization must own the Google Cloud project, Google OAuth client, MCP client credentials, deployment, domain, Redis store, encryption key, administration, and revocation process.
+Use this path only after reading the [organization-owned remote overview](organization-owned-remote.md), [approval matrix](organization-owned-remote/approvals.md), and [complete deployment runbook](organization-owned-remote/runbook.md). The organization must own the Google Cloud project, Google OAuth client, MCP client credentials, deployment, domain, Redis store, encryption key, administration, and revocation process. Staff reuse these components and never receive their values.
 
 Create a Google Web OAuth client with this exact authorized redirect URI:
 
@@ -224,12 +233,16 @@ Use the production `/mcp` URL in step 6B. Verify:
 
 ```sh
 curl https://YOUR-PRODUCTION-ORIGIN/health
-curl -i https://YOUR-PRODUCTION-ORIGIN/mcp
+curl -i -X POST https://YOUR-PRODUCTION-ORIGIN/mcp \
+  -H 'content-type: application/json' \
+  --data '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"read_doc","arguments":{"documentId":"probe"}}}'
 ```
 
 The health route must return `"authMode": "broker"`. The unauthenticated MCP route must return an authorization challenge pointing to the deployment’s protected-resource metadata, not Google’s authorization server directly.
 
 In Claude **Organization settings → Connectors**, an Owner adds the production `/mcp` URL and the organization-owned `MCP_OAUTH_CLIENT_ID` and `MCP_OAUTH_CLIENT_SECRET`, with **Individual sign-in** enabled. This Owner action is the Claude organization approval; no separate Anthropic review is required. Each staff member then connects under **Customize → Connectors** and authorizes their own Google account.
+
+![The connector published to the Claude organization](images/guide/32-org-pilot-connector-available.png)
 
 Anthropic’s Managed authorization beta is optional central identity-provider provisioning, not a prerequisite for an organization custom connector.
 
@@ -296,4 +309,3 @@ Stable values:
 
 - Claude callback: `https://claude.ai/api/mcp/auth_callback`
 - Google scope: `https://www.googleapis.com/auth/documents`
-- Experimental endpoint: `https://docs-mcp-fixed.vercel.app/mcp`

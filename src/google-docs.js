@@ -42,7 +42,9 @@ export async function readDocument(args, authorization, fetchImpl = fetch) {
   if (args.commentsViewMode) {
     query.set("commentsViewMode", args.commentsViewMode);
   }
-  if (typeof args.includeTabsContent === "boolean") {
+  if (args.commentsViewMode) {
+    query.set("includeTabsContent", "true");
+  } else if (typeof args.includeTabsContent === "boolean") {
     query.set("includeTabsContent", String(args.includeTabsContent));
   }
 
