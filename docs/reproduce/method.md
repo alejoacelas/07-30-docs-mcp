@@ -20,6 +20,9 @@
     suggestion controls.
 11. Added the exact request shapes and automatic tab-content flag that the live test
     showed were needed for a smoother model workflow.
+12. Used the local connector in the stale-content finder to create and recover one
+    revision-guarded suggested replacement and one anchored evidence comment in a real
+    published article's source Doc. WordPress was not written.
 
 Secrets remain only in ignored mode-`600` local files and provider secret stores.
 The [organization pilot record](organization-connector-pilot.md) gives the exact

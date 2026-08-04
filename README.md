@@ -44,6 +44,38 @@ This is the minimum scope for arbitrary document IDs, but Google classifies it a
 
 See the [complete setup guide](docs/setup.md) before authorizing an account.
 
+## Existing working pilot
+
+The local connector is already configured and connected on this machine:
+
+| Item | Current value |
+|---|---|
+| Workspace account | `alejandro.acelas-contractor@80000hours.org` |
+| Google Cloud project | `agent-cli-tools-alejandro` |
+| Project number | `122477011422` |
+| Cloud organization | `80000hours.org` (`883222343127`) |
+| OAuth client | `~/.config/credentials/google-oauth-client-agent-cli-tools-alejandro.json` |
+| Local token | `~/.config/google-docs-preview-mcp/token.json` |
+| Claude connector | `google-docs-preview-local` |
+
+Both credential files are ignored, outside this repository and mode `600`; the table
+contains no credential value. Google Docs and Drive APIs are enabled, and the tester has
+effective Project Owner access. Check the connector with:
+
+```sh
+claude mcp get google-docs-preview-local
+npm test
+```
+
+The pilot has now passed two live workloads: a disposable comment/reply/suggestion test
+and a revision-guarded suggested replacement plus evidence comment in a real published
+article's source Doc. The [organization pilot record](docs/reproduce/organization-connector-pilot.md)
+contains the access evidence; the stale-content finder retains the [real-workflow
+readback](../08-04-stale-content-finder/results/2026-08-04/google-doc-suggestion.json).
+
+This proves the local account and Preview API path. It does not make the developer-owned
+remote deployment production-ready.
+
 ## Organization connector
 
 One Google Cloud project and OAuth app can serve the team. Staff do not create Cloud
