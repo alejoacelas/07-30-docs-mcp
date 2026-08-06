@@ -1,4 +1,8 @@
-<!--ai-->
+---
+human_edit_tracking:
+  enabled: true
+  history: []
+---
 # Reproduce the organization connector pilot
 
 This records the specific test environment. Do not copy its names, IDs or paths into
@@ -95,4 +99,3 @@ npm run check:docs
 
 Open the test document and confirm the comment thread and the suggestion’s
 Accept/Reject controls before recording a pass.
-<!--/ai-->
