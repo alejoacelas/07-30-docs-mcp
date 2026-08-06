@@ -1,4 +1,8 @@
-<!--ai-->
+---
+human_edit_tracking:
+  enabled: true
+  history: []
+---
 # Connect Google Docs Preview in Claude
 
 You do not need a Google Cloud project or OAuth credentials. 80,000 Hours configures
@@ -41,4 +45,3 @@ completed the production review.
 Disconnect the connector in Claude, then revoke the Google grant under
 [Google Account connections](https://myaccount.google.com/connections). Disconnecting
 Claude alone does not revoke Google’s refresh token.
-<!--/ai-->
