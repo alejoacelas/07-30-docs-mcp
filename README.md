@@ -1,8 +1,4 @@
----
-human_edit_tracking:
-  enabled: true
-  history: []
----
+<!--ai-->
 # Google Docs Preview MCP
 
 Create anchored comments, replies, and real suggested edits in Google Docs from Claude.
@@ -124,3 +120,4 @@ The test suite covers the preview schema, complete request forwarding, Docs-only
   admin-led offboarding, rate limits, monitoring and security review remain.
 
 Read [SECURITY.md](SECURITY.md), the [organization-owned deployment decision](docs/organization-owned-remote.md), and the full [threat model](docs/design-and-security.md).
+<!--/ai-->

@@ -1,8 +1,4 @@
----
-human_edit_tracking:
-  enabled: true
-  history: []
----
+<!--ai-->
 # Self-hosted Google Docs MCP test
 
 Tested 30 July 2026.
@@ -62,3 +58,4 @@ Google merged the new insertion into the existing open suggestion by the same au
 ## Conclusion
 
 The Docs REST API and preview enrollment work. Google’s hosted MCP adapter is the failed component: it omits top-level `writeControl`, omits preview read parameters, and strips comment content. Preserving those fields in a self-hosted adapter makes the same operations pass through Claude.
+<!--/ai-->

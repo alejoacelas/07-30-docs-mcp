@@ -1,8 +1,4 @@
----
-human_edit_tracking:
-  enabled: true
-  history: []
----
+<!--ai-->
 # Organization connector pilot
 
 ## Result
@@ -57,3 +53,4 @@ The one-member protocol and user flow passed. Before confidential use, move the
 deployment, Redis store, encryption key, MCP client secret and administrators to
 approved 80,000 Hours accounts; add a subject-bound grant registry and admin revoke
 operation; and test with one person from a second organizational unit.
+<!--/ai-->
