@@ -1,8 +1,3 @@
----
-human_edit_tracking:
-  enabled: true
-  history: []
----
 # Self-hosted Google Docs MCP test
 
 Tested 30 July 2026.

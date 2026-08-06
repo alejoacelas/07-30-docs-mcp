@@ -1,8 +1,3 @@
----
-human_edit_tracking:
-  enabled: true
-  history: []
----
 # Connect Google Docs Preview in Claude
 
 You do not need a Google Cloud project or OAuth credentials. 80,000 Hours configures

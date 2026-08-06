@@ -1,8 +1,3 @@
----
-human_edit_tracking:
-  enabled: true
-  history: []
----
 # Reproduce the organization connector pilot
 
 This records the specific test environment. Do not copy its names, IDs or paths into
